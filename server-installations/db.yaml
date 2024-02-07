@@ -1,0 +1,34 @@
+---
+- name: DBserver setup
+  hosts: dbservers
+  become: yes
+  vars:
+    #dbname: electric
+    #dbuser: current
+    #dbpass: tesla
+  tasks:
+    - name: Install Mysql
+      yum:
+        name: mariadb-server
+        state: present
+    - name: Install Python-Mysql
+      yum:
+        name: python3-PyMySQL
+        state: present
+    - name: Start maridb server
+      service:
+        name: mariadb
+        state: started
+        enabled: yes
+    - name: Create a new database with name {{dbname}}
+      mysql_db:
+        name: "{{dbname}}"
+        state: present
+        login_unix_socket: /var/lib/mysql/mysql.sock
+    - name: Create database user with name {{dbuser}} and password {{dbpass}} with all database privileges
+      mysql_user:
+        name: "{{dbuser}}"
+        password: "{{dbpass}}"
+        priv: '*.*:ALL'
+        state: present
+        login_unix_socket: /var/lib/mysql/mysql.sock
